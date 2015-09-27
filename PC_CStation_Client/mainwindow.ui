@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>250</width>
+    <width>400</width>
     <height>450</height>
    </rect>
   </property>
@@ -19,7 +19,7 @@
      <rect>
       <x>10</x>
       <y>40</y>
-      <width>111</width>
+      <width>121</width>
       <height>20</height>
      </rect>
     </property>
@@ -32,7 +32,7 @@
      <rect>
       <x>10</x>
       <y>20</y>
-      <width>101</width>
+      <width>111</width>
       <height>16</height>
      </rect>
     </property>
@@ -43,22 +43,22 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>130</x>
+      <x>140</x>
       <y>20</y>
       <width>111</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>Port:</string>
+     <string>Server port:</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="lineEdit_port">
     <property name="geometry">
      <rect>
-      <x>130</x>
+      <x>142</x>
       <y>40</y>
-      <width>113</width>
+      <width>121</width>
       <height>20</height>
      </rect>
     </property>
@@ -71,7 +71,7 @@
      <rect>
       <x>10</x>
       <y>100</y>
-      <width>111</width>
+      <width>181</width>
       <height>22</height>
      </rect>
     </property>
@@ -84,7 +84,7 @@
      <rect>
       <x>10</x>
       <y>80</y>
-      <width>101</width>
+      <width>181</width>
       <height>16</height>
      </rect>
     </property>
@@ -95,9 +95,9 @@
    <widget class="QPushButton" name="pushButton_listen">
     <property name="geometry">
      <rect>
-      <x>130</x>
+      <x>270</x>
       <y>400</y>
-      <width>111</width>
+      <width>121</width>
       <height>31</height>
      </rect>
     </property>
@@ -108,22 +108,22 @@
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>130</x>
+      <x>210</x>
       <y>80</y>
-      <width>101</width>
+      <width>181</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>Interval (sec)l:</string>
+     <string>Interval (sec):</string>
     </property>
    </widget>
    <widget class="QSpinBox" name="spinBox_interval">
     <property name="geometry">
      <rect>
-      <x>130</x>
+      <x>210</x>
       <y>100</y>
-      <width>111</width>
+      <width>181</width>
       <height>22</height>
      </rect>
     </property>
@@ -140,9 +140,9 @@
    <widget class="QPushButton" name="pushButton_config">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>140</x>
       <y>400</y>
-      <width>111</width>
+      <width>121</width>
       <height>31</height>
      </rect>
     </property>
@@ -155,13 +155,21 @@
      <rect>
       <x>10</x>
       <y>161</y>
-      <width>231</width>
+      <width>181</width>
       <height>221</height>
      </rect>
     </property>
     <item>
      <property name="text">
       <string>Power state</string>
+     </property>
+     <property name="checkState">
+      <enum>Checked</enum>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Action</string>
      </property>
      <property name="checkState">
       <enum>Checked</enum>
@@ -205,12 +213,138 @@
      <rect>
       <x>10</x>
       <y>140</y>
-      <width>231</width>
+      <width>181</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
      <string>Active sensors:</string>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="listWidget_actions">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>161</y>
+      <width>181</width>
+      <height>221</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>Tone</string>
+     </property>
+     <property name="checkState">
+      <enum>Checked</enum>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Show message</string>
+     </property>
+     <property name="checkState">
+      <enum>Checked</enum>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Set indication</string>
+     </property>
+     <property name="checkState">
+      <enum>Checked</enum>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Get indication info</string>
+     </property>
+     <property name="checkState">
+      <enum>Checked</enum>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Reset</string>
+     </property>
+     <property name="checkState">
+      <enum>Checked</enum>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Configuration mode</string>
+     </property>
+     <property name="checkState">
+      <enum>Checked</enum>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Set display state</string>
+     </property>
+     <property name="checkState">
+      <enum>Checked</enum>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Set activity direction</string>
+     </property>
+     <property name="checkState">
+      <enum>Checked</enum>
+     </property>
+    </item>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>140</y>
+      <width>181</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Active actions:</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_action">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>400</y>
+      <width>121</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Action</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_port_client">
+    <property name="geometry">
+     <rect>
+      <x>272</x>
+      <y>40</y>
+      <width>121</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>51016</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>20</y>
+      <width>111</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Client port:</string>
     </property>
    </widget>
   </widget>
