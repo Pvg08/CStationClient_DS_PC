@@ -1,0 +1,6 @@
+/build*
+/PC_CStation_Client-build*
+
+# files
+Thumbs.db
+*.pro.user*
