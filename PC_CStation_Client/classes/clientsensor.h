@@ -3,20 +3,23 @@
 
 #include <QObject>
 #include <QMap>
+#include "../abstractserver.h"
 
 class ClientSensor : public QObject
 {
     Q_OBJECT
 public:
-    explicit ClientSensor(QObject *parent);
+    explicit ClientSensor(AbstractServer *parent);
     ~ClientSensor();
 
     QMap<QString, QString> *getSettings();
     virtual QString getDescriptionString();
     virtual QString getValueString();
     virtual void setEnabled(bool enabled);
+    virtual void sendNow();
 
 signals:
+    void sendingInitiate(QString);
 
 protected:
     QMap<QString,QString> *settings;

@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     classes/clientaction.cpp \
     classes/clientSensors/clientsensoractivity.cpp \
     classes/clientActions/clientactionreset.cpp \
-    classes/clientActions/clientactionconfig.cpp
+    classes/clientActions/clientactionconfig.cpp \
+    classes/clientSensors/clientsensorbtnactivity.cpp
 
 HEADERS  += mainwindow.h \
     abstractserver.h \
@@ -28,7 +29,8 @@ HEADERS  += mainwindow.h \
     classes/clientaction.h \
     classes/clientSensors/clientsensoractivity.h \
     classes/clientActions/clientactionreset.h \
-    classes/clientActions/clientactionconfig.h
+    classes/clientActions/clientactionconfig.h \
+    classes/clientSensors/clientsensorbtnactivity.h
 
 FORMS    += mainwindow.ui
 

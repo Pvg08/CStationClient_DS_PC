@@ -1,6 +1,6 @@
 #include "clientsensoractivity.h"
 
-ClientSensorActivity::ClientSensorActivity(QObject *parent):
+ClientSensorActivity::ClientSensorActivity(AbstractServer *parent):
     ClientSensor(parent)
 {
     letter = 'A';

@@ -1,6 +1,6 @@
 #include "clientsensor.h"
 
-ClientSensor::ClientSensor(QObject *parent) : QObject(parent)
+ClientSensor::ClientSensor(AbstractServer *parent) : QObject(parent)
 {
     settings = new QMap<QString,QString>();
     letter = '0';
@@ -30,4 +30,12 @@ QString ClientSensor::getValueString()
 void ClientSensor::setEnabled(bool enabled)
 {
     is_enabled = enabled;
+}
+
+void ClientSensor::sendNow()
+{
+    AbstractServer *server = dynamic_cast<AbstractServer*>(this->parent());
+    if (server != NULL) {
+        emit sendingInitiate(getValueString());
+    }
 }

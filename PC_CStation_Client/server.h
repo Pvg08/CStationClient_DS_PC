@@ -9,6 +9,7 @@
 #include "./classes/clientaction.h"
 #include "./classes/clientsensor.h"
 #include "./classes/clientSensors/clientsensoractivity.h"
+#include "./classes/clientSensors/clientsensorbtnactivity.h"
 #include "./classes/clientActions/clientactionreset.h"
 #include "./classes/clientActions/clientactionconfig.h"
 
@@ -21,6 +22,7 @@ public:
     ~Server();
     void Reset();
     void StartServer();
+    void StopServer();
     void ConfigurationMode();
     bool SendData(QString message);
 
@@ -33,6 +35,10 @@ public:
     int getLocalPort() const;
     void setLocalPort(int value);
 
+    void setSendingInterval(unsigned seconds);
+
+    QMap<QString, ClientSensor *> *clientSensors();
+
 signals:
 
 private slots:
@@ -42,6 +48,8 @@ private slots:
     void clientDisconnected();
     void socketStateChanged(QAbstractSocket::SocketState state);
     void displayError(QAbstractSocket::SocketError socketError);
+    void sendingTimeout();
+    void sensorInitiateDataSending(QString message);
 
 private:
     bool is_init_connection;
@@ -59,9 +67,12 @@ private:
     QTcpServer *tcpServer;
     QNetworkSession *networkSession;
 
+    QTimer *shotTimer;
+
     QTcpSocket *getRemoteSocket();
     void sendSensorsInfo();
     void sendActionsInfo();
+    void initSensors();
 };
 
 #endif

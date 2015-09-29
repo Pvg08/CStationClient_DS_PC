@@ -102,7 +102,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Listen</string>
+     <string>Reset</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_4">

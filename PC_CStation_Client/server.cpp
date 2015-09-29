@@ -13,17 +13,26 @@ Server::Server()
     tcpServer = NULL;
     networkSession = NULL;
     remote_server_socket = NULL;
+    shotTimer = new QTimer(this);
+    shotTimer->setInterval(100000);
+    shotTimer->setSingleShot(false);
+    connect(shotTimer, SIGNAL(timeout()), this, SLOT(sendingTimeout()));
+
     sensors = new QMap<QString, ClientSensor *>();
     actions = new QMap<QString, ClientAction *>();
 
     sensors->insert("activity", new ClientSensorActivity(this));
+    sensors->insert("button_activity", new ClientSensorBtnActivity(this));
 
     actions->insert("reset", new ClientActionReset(this));
     actions->insert("config", new ClientActionConfig(this));
+
+    initSensors();
 }
 
 Server::~Server()
 {
+    delete shotTimer;
     QMap<QString, ClientSensor *>::const_iterator i = sensors->constBegin();
     while (i != sensors->constEnd()) {
         delete i.value();
@@ -41,18 +50,18 @@ Server::~Server()
     if (remote_server_socket) delete remote_server_socket;
 }
 
+void Server::initSensors()
+{
+    QMap<QString, ClientSensor *>::const_iterator i = sensors->constBegin();
+    while (i != sensors->constEnd()) {
+        connect(i.value(), SIGNAL(sendingInitiate(QString)), this, SLOT(sensorInitiateDataSending(QString)));
+        ++i;
+    }
+}
+
 void Server::Reset()
 {
-    is_config_mode = false;
-    emit write_message(tr("Reseting server."));
-
-    if (remote_server_socket) {
-        delete remote_server_socket;
-        remote_server_socket = NULL;
-    }
-    if (tcpServer) {
-        tcpServer->close();
-    }
+    StopServer();
     sessionOpened();
 }
 
@@ -88,6 +97,21 @@ void Server::StartServer()
     connect(tcpServer, SIGNAL(newConnection()), this, SLOT(recieveConnection()));
 }
 
+void Server::StopServer()
+{
+    shotTimer->stop();
+    is_config_mode = false;
+    emit write_message(tr("Stopping server."));
+
+    if (remote_server_socket) {
+        delete remote_server_socket;
+        remote_server_socket = NULL;
+    }
+    if (tcpServer) {
+        tcpServer->close();
+    }
+}
+
 void Server::ConfigurationMode()
 {
     Reset();
@@ -102,7 +126,11 @@ bool Server::SendData(QString message)
         emit write_message(tr("Sending data (size=%1) to server. Content: \"%2\"").arg(message.length()).arg(message));
         tcpSocket->write(message.toLocal8Bit());
         result = tcpSocket->waitForBytesWritten();
-        if (!result) emit error(tr("Sending error: %1").arg(tcpSocket->errorString()));
+        if (!result) {
+            emit error(tr("Sending error: %1").arg(tcpSocket->errorString()));
+        } else {
+            tcpSocket->flush();
+        }
     }
     return result;
 }
@@ -149,8 +177,10 @@ void Server::sessionOpened()
 
     getRemoteSocket();
     if (remote_server_socket) {
+        SendData("DS=" + QString::number(device_id) + "\r\n");
         sendSensorsInfo();
         sendActionsInfo();
+        shotTimer->start();
     }
 }
 
@@ -199,6 +229,45 @@ void Server::displayError(QAbstractSocket::SocketError socketError)
     }
 }
 
+void Server::sendingTimeout()
+{
+    if (remote_server_socket && !is_init_connection) {
+        QString message = "";
+        QString tmpmessage = "";
+        QMap<QString, ClientSensor *>::const_iterator i = sensors->constBegin();
+        while (i != sensors->constEnd()) {
+            tmpmessage = i.value()->getValueString();
+            if (!tmpmessage.isEmpty()) {
+                if (!message.isEmpty()) message+=";";
+                message += tmpmessage;
+            }
+            ++i;
+        }
+        if (!message.isEmpty()) {
+            if (getRemoteSocket()) {
+                message = "DS_V={"+message+"}";
+                SendData(message);
+            }
+        }
+    }
+}
+
+void Server::sensorInitiateDataSending(QString message)
+{
+    ClientSensor *sensor = dynamic_cast<ClientSensor*>(this->sender());
+    if (sensor && !message.isEmpty()) {
+        if (getRemoteSocket()) {
+            message = "DS_V={"+message+"}";
+            SendData(message);
+        }
+    }
+}
+
+QMap<QString, ClientSensor *> *Server::clientSensors()
+{
+    return sensors;
+}
+
 int Server::getLocalPort() const
 {
     return local_port;
@@ -207,6 +276,11 @@ int Server::getLocalPort() const
 void Server::setLocalPort(int value)
 {
     local_port = value;
+}
+
+void Server::setSendingInterval(unsigned seconds)
+{
+    shotTimer->setInterval(seconds*1000);
 }
 
 int Server::getDeviceId() const
@@ -266,7 +340,7 @@ void Server::sendSensorsInfo()
 {
     QMap<QString, ClientSensor *>::const_iterator i = sensors->constBegin();
     while (i != sensors->constEnd()) {
-        QString message = i.value()->getDescriptionString();
+        QString message = "DS_INFO="+i.value()->getDescriptionString()+"\r\n";
         SendData(message);
         ++i;
     }
@@ -276,7 +350,7 @@ void Server::sendActionsInfo()
 {
     QMap<QString, ClientAction *>::const_iterator i = actions->constBegin();
     while (i != actions->constEnd()) {
-        QString message = i.value()->getDescriptionString();
+        QString message = "DC_INFO="+i.value()->getDescriptionString()+"\r\n";
         SendData(message);
         ++i;
     }

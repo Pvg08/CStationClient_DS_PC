@@ -14,9 +14,10 @@ MainWindow::MainWindow(QWidget *parent) :
     server->setLocalPort(ui->lineEdit_port_client->text().toInt());
     server->setRemoteIPAddress(ui->lineEdit_ip->text());
     server->setDeviceId(ui->spinBox_id->value());
-    server->StartServer();
     QObject::connect(server, SIGNAL(error(QString)), this, SLOT(get_error(QString)));
     QObject::connect(server, SIGNAL(write_message(QString)), this, SLOT(get_message(QString)));
+
+    server->StartServer();
 }
 
 MainWindow::~MainWindow()
@@ -53,4 +54,23 @@ void MainWindow::updateServerParams()
     server->setLocalPort(ui->lineEdit_port_client->text().toInt());
     server->setRemoteIPAddress(ui->lineEdit_ip->text());
     server->setDeviceId(ui->spinBox_id->value());
+    server->setSendingInterval(ui->spinBox_interval->value());
+}
+
+void MainWindow::on_pushButton_action_pressed()
+{
+    ClientSensor* sensor = server->clientSensors()->value("button_activity", NULL);
+    if (sensor) {
+        sensor->getSettings()->insert("VALUE", "yes");
+        sensor->sendNow();
+    }
+}
+
+void MainWindow::on_pushButton_action_released()
+{
+    ClientSensor* sensor = server->clientSensors()->value("button_activity", NULL);
+    if (sensor) {
+        sensor->getSettings()->insert("VALUE", "no");
+        sensor->sendNow();
+    }
 }

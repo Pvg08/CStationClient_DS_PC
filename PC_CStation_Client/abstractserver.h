@@ -10,6 +10,7 @@ class AbstractServer : public QObject
 public:
     virtual void Reset() = 0;
     virtual void StartServer() = 0;
+    virtual void StopServer() = 0;
     virtual void ConfigurationMode() = 0;
     virtual bool SendData(QString message) = 0;
 
