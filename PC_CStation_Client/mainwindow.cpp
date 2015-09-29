@@ -37,9 +37,20 @@ void MainWindow::get_error(QString message)
 
 void MainWindow::on_pushButton_listen_clicked()
 {
+    updateServerParams();
+    server->Reset();
+}
+
+void MainWindow::on_pushButton_config_clicked()
+{
+    updateServerParams();
+    server->ConfigurationMode();
+}
+
+void MainWindow::updateServerParams()
+{
     server->setRemotePort(ui->lineEdit_port->text().toInt());
     server->setLocalPort(ui->lineEdit_port_client->text().toInt());
     server->setRemoteIPAddress(ui->lineEdit_ip->text());
     server->setDeviceId(ui->spinBox_id->value());
-    server->Reset();
 }

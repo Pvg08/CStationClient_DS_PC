@@ -23,9 +23,13 @@ private slots:
 
     void on_pushButton_listen_clicked();
 
+    void on_pushButton_config_clicked();
+
 private:
     Ui::MainWindow *ui;
     Server* server;
+
+    void updateServerParams();
 };
 
 #endif // MAINWINDOW_H

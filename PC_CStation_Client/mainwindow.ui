@@ -161,7 +161,7 @@
     </property>
     <item>
      <property name="text">
-      <string>Power state</string>
+      <string>Client activity</string>
      </property>
      <property name="checkState">
       <enum>Checked</enum>
@@ -169,7 +169,7 @@
     </item>
     <item>
      <property name="text">
-      <string>Action</string>
+      <string>Action button</string>
      </property>
      <property name="checkState">
       <enum>Checked</enum>

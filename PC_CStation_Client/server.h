@@ -1,13 +1,18 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include <QObject>
 #include <QTcpServer>
 #include <QNetworkSession>
 #include <QtNetwork>
 #include <stdlib.h>
+#include "./abstractserver.h"
+#include "./classes/clientaction.h"
+#include "./classes/clientsensor.h"
+#include "./classes/clientSensors/clientsensoractivity.h"
+#include "./classes/clientActions/clientactionreset.h"
+#include "./classes/clientActions/clientactionconfig.h"
 
-class Server : public QObject
+class Server : public AbstractServer
 {
     Q_OBJECT
 
@@ -16,6 +21,7 @@ public:
     ~Server();
     void Reset();
     void StartServer();
+    void ConfigurationMode();
     bool SendData(QString message);
 
     int getRemotePort() const;
@@ -28,8 +34,6 @@ public:
     void setLocalPort(int value);
 
 signals:
-    void error(QString message);
-    void write_message(QString message);
 
 private slots:
     void sessionOpened();
@@ -38,14 +42,19 @@ private slots:
     void clientDisconnected();
     void socketStateChanged(QAbstractSocket::SocketState state);
     void displayError(QAbstractSocket::SocketError socketError);
+
 private:
     bool is_init_connection;
+    bool is_config_mode;
     int remote_port = 0;
     int local_port = 0;
     int device_id = 0;
     QString remoteIPAddress;
     QTcpSocket *remote_server_socket;
     QMap<quint32, QTcpSocket *> *sockets;
+    QMap<QString, ClientSensor *> *sensors;
+    QMap<QString, ClientAction *> *actions;
+
     QString thisIPAddress;
     QTcpServer *tcpServer;
     QNetworkSession *networkSession;

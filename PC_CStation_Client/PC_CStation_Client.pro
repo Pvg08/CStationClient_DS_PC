@@ -11,13 +11,24 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = PC_CStation_Client
 TEMPLATE = app
 
-
 SOURCES += main.cpp\
-        mainwindow.cpp \
-    server.cpp
+    mainwindow.cpp \
+    abstractserver.cpp \
+    server.cpp \
+    classes/clientsensor.cpp \
+    classes/clientaction.cpp \
+    classes/clientSensors/clientsensoractivity.cpp \
+    classes/clientActions/clientactionreset.cpp \
+    classes/clientActions/clientactionconfig.cpp
 
 HEADERS  += mainwindow.h \
-    server.h
+    abstractserver.h \
+    server.h \
+    classes/clientsensor.h \
+    classes/clientaction.h \
+    classes/clientSensors/clientsensoractivity.h \
+    classes/clientActions/clientactionreset.h \
+    classes/clientActions/clientactionconfig.h
 
 FORMS    += mainwindow.ui
 

@@ -1,7 +1,7 @@
 #include "server.h"
 
 Server::Server()
-:   QObject(0), tcpServer(0), networkSession(0)
+:   tcpServer(0), networkSession(0)
 {
     remote_port = 51015;
     local_port = 51016;
@@ -9,13 +9,33 @@ Server::Server()
     thisIPAddress = "";
     remoteIPAddress = "127.0.0.1";
     is_init_connection = false;
+    is_config_mode = false;
     tcpServer = NULL;
     networkSession = NULL;
     remote_server_socket = NULL;
+    sensors = new QMap<QString, ClientSensor *>();
+    actions = new QMap<QString, ClientAction *>();
+
+    sensors->insert("activity", new ClientSensorActivity(this));
+
+    actions->insert("reset", new ClientActionReset(this));
+    actions->insert("config", new ClientActionConfig(this));
 }
 
 Server::~Server()
 {
+    QMap<QString, ClientSensor *>::const_iterator i = sensors->constBegin();
+    while (i != sensors->constEnd()) {
+        delete i.value();
+        ++i;
+    }
+    QMap<QString, ClientAction *>::const_iterator j = actions->constBegin();
+    while (j != actions->constEnd()) {
+        delete j.value();
+        ++j;
+    }
+    delete sensors;
+    delete actions;
     if (tcpServer) delete tcpServer;
     if (networkSession) delete networkSession;
     if (remote_server_socket) delete remote_server_socket;
@@ -23,6 +43,7 @@ Server::~Server()
 
 void Server::Reset()
 {
+    is_config_mode = false;
     emit write_message(tr("Reseting server."));
 
     if (remote_server_socket) {
@@ -37,6 +58,7 @@ void Server::Reset()
 
 void Server::StartServer()
 {
+    is_config_mode = false;
     emit write_message(tr("Network session starting."));
 
     QNetworkConfigurationManager manager;
@@ -64,6 +86,12 @@ void Server::StartServer()
     }
 
     connect(tcpServer, SIGNAL(newConnection()), this, SLOT(recieveConnection()));
+}
+
+void Server::ConfigurationMode()
+{
+    Reset();
+    is_config_mode = true;
 }
 
 bool Server::SendData(QString message)
@@ -120,8 +148,10 @@ void Server::sessionOpened()
     emit write_message(tr("The server is running on IP: %1 port: %2\n").arg(thisIPAddress).arg(tcpServer->serverPort()));
 
     getRemoteSocket();
-    sendSensorsInfo();
-    sendActionsInfo();
+    if (remote_server_socket) {
+        sendSensorsInfo();
+        sendActionsInfo();
+    }
 }
 
 void Server::recieveConnection()
@@ -168,6 +198,7 @@ void Server::displayError(QAbstractSocket::SocketError socketError)
         }
     }
 }
+
 int Server::getLocalPort() const
 {
     return local_port;
@@ -233,12 +264,22 @@ QTcpSocket *Server::getRemoteSocket()
 
 void Server::sendSensorsInfo()
 {
-    //TODO sending sensors info
+    QMap<QString, ClientSensor *>::const_iterator i = sensors->constBegin();
+    while (i != sensors->constEnd()) {
+        QString message = i.value()->getDescriptionString();
+        SendData(message);
+        ++i;
+    }
 }
 
 void Server::sendActionsInfo()
 {
-    //TODO sending actions info
+    QMap<QString, ClientAction *>::const_iterator i = actions->constBegin();
+    while (i != actions->constEnd()) {
+        QString message = i.value()->getDescriptionString();
+        SendData(message);
+        ++i;
+    }
 }
 
 void Server::recieveData()
@@ -253,8 +294,24 @@ void Server::recieveData()
         QString message = QString::fromLatin1(mem, size);
         delete mem;
         emit write_message(tr("Recieved data (size=%1) from %2. Content: \"%3\"").arg(size).arg(tcpSocket->peerAddress().toString()).arg(message));
-
-        //TODO ACTIONS
+        if (!is_config_mode) {
+            QMap<QString, ClientAction *>::const_iterator i = actions->constBegin();
+            while (i != actions->constEnd()) {
+                if (i.value()->isEnabled() && message.startsWith(i.value()->getPrefix()+"=")) {
+                    QString params_message = message;
+                    params_message.replace(QRegExp("^("+i.value()->getPrefix()+")\\="), "");
+                    i.value()->setParamsFromMessage(params_message);
+                    i.value()->runAction();
+                }
+                ++i;
+            }
+        } else if(message.startsWith("DS_SETUP:\r\n")) {
+            QStringList params_message = message.split("\r\n");
+            params_message.removeFirst();
+            if (!params_message.isEmpty() && params_message.length()>=4) {
+                //TODO SETUP
+            }
+        }
     }
 }
 
