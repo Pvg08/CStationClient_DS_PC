@@ -236,10 +236,12 @@ void Server::sendingTimeout()
         QString tmpmessage = "";
         QMap<QString, ClientSensor *>::const_iterator i = sensors->constBegin();
         while (i != sensors->constEnd()) {
-            tmpmessage = i.value()->getValueString();
-            if (!tmpmessage.isEmpty()) {
-                if (!message.isEmpty()) message+=";";
-                message += tmpmessage;
+            if (i.value()->isEnabled()) {
+                tmpmessage = i.value()->getValueString();
+                if (!tmpmessage.isEmpty()) {
+                    if (!message.isEmpty()) message+=";";
+                    message += tmpmessage;
+                }
             }
             ++i;
         }
@@ -261,6 +263,11 @@ void Server::sensorInitiateDataSending(QString message)
             SendData(message);
         }
     }
+}
+
+QMap<QString, ClientAction *> *Server::clientActions()
+{
+    return actions;
 }
 
 QMap<QString, ClientSensor *> *Server::clientSensors()

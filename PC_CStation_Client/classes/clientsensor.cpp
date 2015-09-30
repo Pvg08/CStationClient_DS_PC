@@ -34,8 +34,15 @@ void ClientSensor::setEnabled(bool enabled)
 
 void ClientSensor::sendNow()
 {
-    AbstractServer *server = dynamic_cast<AbstractServer*>(this->parent());
-    if (server != NULL) {
-        emit sendingInitiate(getValueString());
+    if (is_enabled) {
+        AbstractServer *server = dynamic_cast<AbstractServer*>(this->parent());
+        if (server != NULL) {
+            emit sendingInitiate(getValueString());
+        }
     }
+}
+
+bool ClientSensor::isEnabled() const
+{
+    return is_enabled;
 }

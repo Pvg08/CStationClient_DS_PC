@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QMessageBox>
+#include <QListWidgetItem>
 #include "server.h"
 
 namespace Ui {
@@ -29,11 +30,20 @@ private slots:
 
     void on_pushButton_action_released();
 
+    void on_listWidget_sensors_itemChanged(QListWidgetItem *item);
+
+    void on_listWidget_actions_itemChanged(QListWidgetItem *item);
+
 private:
     Ui::MainWindow *ui;
     Server* server;
 
     void updateServerParams();
+    void save_settings(QString filename);
+    void load_settings(QString filename);
+    void closeEvent(QCloseEvent *event);
+
+    int getItemIndex(QListWidget *w, QListWidgetItem *item);
 };
 
 #endif // MAINWINDOW_H

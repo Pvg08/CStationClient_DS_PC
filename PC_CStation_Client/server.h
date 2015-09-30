@@ -38,6 +38,7 @@ public:
     void setSendingInterval(unsigned seconds);
 
     QMap<QString, ClientSensor *> *clientSensors();
+    QMap<QString, ClientAction *> *clientActions();
 
 signals:
 

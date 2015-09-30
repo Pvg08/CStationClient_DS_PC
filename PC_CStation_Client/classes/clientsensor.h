@@ -16,6 +16,7 @@ public:
     virtual QString getDescriptionString();
     virtual QString getValueString();
     virtual void setEnabled(bool enabled);
+    bool isEnabled() const;
     virtual void sendNow();
 
 signals:
