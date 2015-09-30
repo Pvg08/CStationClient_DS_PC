@@ -41,9 +41,10 @@ public:
     QMap<QString, ClientAction *> *clientActions();
 
 signals:
+    void set_config(QString, int);
 
 private slots:
-    void sessionOpened();
+    void sessionOpen();
     void recieveConnection();
     void recieveData();
     void clientDisconnected();
@@ -74,6 +75,7 @@ private:
     void sendSensorsInfo();
     void sendActionsInfo();
     void initSensors();
+    void ResetServer(bool is_configuration);
 };
 
 #endif

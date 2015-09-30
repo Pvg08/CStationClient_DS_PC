@@ -8,7 +8,7 @@ ClientSensorActivity::ClientSensorActivity(AbstractServer *parent):
 
 QString ClientSensorActivity::getDescriptionString()
 {
-    return QString(letter) + ":enum(off,on)[30]|Activity";
+    return QString(letter) + ":enum(off,on)[60]|Activity";
 }
 
 QString ClientSensorActivity::getValueString()

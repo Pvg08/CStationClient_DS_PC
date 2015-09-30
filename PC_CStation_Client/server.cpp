@@ -59,14 +59,26 @@ void Server::initSensors()
     }
 }
 
-void Server::Reset()
+void Server::ResetServer(bool is_configuration)
 {
     StopServer();
-    sessionOpened();
+    is_config_mode = is_configuration;
+    sessionOpen();
+}
+
+void Server::Reset()
+{
+    ResetServer(false);
+}
+
+void Server::ConfigurationMode()
+{
+    ResetServer(true);
 }
 
 void Server::StartServer()
 {
+    shotTimer->stop();
     is_config_mode = false;
     emit write_message(tr("Network session starting."));
 
@@ -86,12 +98,12 @@ void Server::StartServer()
         }
 
         networkSession = new QNetworkSession(config, this);
-        connect(networkSession, SIGNAL(opened()), this, SLOT(sessionOpened()));
+        connect(networkSession, SIGNAL(opened()), this, SLOT(sessionOpen()));
 
         emit write_message(tr("Opening network session."));
         networkSession->open();
     } else {
-        sessionOpened();
+        sessionOpen();
     }
 
     connect(tcpServer, SIGNAL(newConnection()), this, SLOT(recieveConnection()));
@@ -112,12 +124,6 @@ void Server::StopServer()
     }
 }
 
-void Server::ConfigurationMode()
-{
-    Reset();
-    is_config_mode = true;
-}
-
 bool Server::SendData(QString message)
 {
     bool result = false;
@@ -135,7 +141,7 @@ bool Server::SendData(QString message)
     return result;
 }
 
-void Server::sessionOpened()
+void Server::sessionOpen()
 {
     emit write_message(tr("Network session opened."));
 
@@ -175,12 +181,15 @@ void Server::sessionOpened()
 
     emit write_message(tr("The server is running on IP: %1 port: %2\n").arg(thisIPAddress).arg(tcpServer->serverPort()));
 
-    getRemoteSocket();
-    if (remote_server_socket) {
-        SendData("DS=" + QString::number(device_id) + "\r\n");
-        sendSensorsInfo();
-        sendActionsInfo();
-        shotTimer->start();
+    if (!is_config_mode) {
+        getRemoteSocket();
+        if (remote_server_socket) {
+            SendData("DS=" + QString::number(device_id) + "\r\n");
+            sendSensorsInfo();
+            sendActionsInfo();
+            shotTimer->start();
+            sendingTimeout();
+        }
     }
 }
 
@@ -196,7 +205,7 @@ void Server::recieveConnection()
 
     connect(clientConnection, SIGNAL(disconnected()), clientConnection, SLOT(deleteLater()));
 
-    if (client_ip_int == QHostAddress(remoteIPAddress).toIPv4Address()) {
+    if (client_ip_int == QHostAddress(remoteIPAddress).toIPv4Address() || is_config_mode) {
         if (remote_server_socket && clientConnection != remote_server_socket) {
             delete remote_server_socket;
         }
@@ -231,24 +240,27 @@ void Server::displayError(QAbstractSocket::SocketError socketError)
 
 void Server::sendingTimeout()
 {
-    if (remote_server_socket && !is_init_connection) {
-        QString message = "";
-        QString tmpmessage = "";
-        QMap<QString, ClientSensor *>::const_iterator i = sensors->constBegin();
-        while (i != sensors->constEnd()) {
-            if (i.value()->isEnabled()) {
-                tmpmessage = i.value()->getValueString();
-                if (!tmpmessage.isEmpty()) {
-                    if (!message.isEmpty()) message+=";";
-                    message += tmpmessage;
+    if (!is_init_connection && !is_config_mode) {
+        getRemoteSocket();
+        if (remote_server_socket) {
+            QString message = "";
+            QString tmpmessage = "";
+            QMap<QString, ClientSensor *>::const_iterator i = sensors->constBegin();
+            while (i != sensors->constEnd()) {
+                if (i.value()->isEnabled()) {
+                    tmpmessage = i.value()->getValueString();
+                    if (!tmpmessage.isEmpty()) {
+                        if (!message.isEmpty()) message+=";";
+                        message += tmpmessage;
+                    }
                 }
+                ++i;
             }
-            ++i;
-        }
-        if (!message.isEmpty()) {
-            if (getRemoteSocket()) {
-                message = "DS_V={"+message+"}";
-                SendData(message);
+            if (!message.isEmpty()) {
+                if (getRemoteSocket()) {
+                    message = "DS_V={"+message+"}";
+                    SendData(message);
+                }
             }
         }
     }
@@ -257,7 +269,7 @@ void Server::sendingTimeout()
 void Server::sensorInitiateDataSending(QString message)
 {
     ClientSensor *sensor = dynamic_cast<ClientSensor*>(this->sender());
-    if (sensor && !message.isEmpty()) {
+    if (!is_config_mode && sensor && !message.isEmpty()) {
         if (getRemoteSocket()) {
             message = "DS_V={"+message+"}";
             SendData(message);
@@ -390,7 +402,9 @@ void Server::recieveData()
             QStringList params_message = message.split("\r\n");
             params_message.removeFirst();
             if (!params_message.isEmpty() && params_message.length()>=4) {
-                //TODO SETUP
+                device_id = params_message.value(3, "0").toInt();
+                remoteIPAddress = params_message.value(2, "");
+                emit set_config(remoteIPAddress, device_id);
             }
         }
     }

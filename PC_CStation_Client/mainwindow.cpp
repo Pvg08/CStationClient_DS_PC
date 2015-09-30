@@ -11,11 +11,9 @@ MainWindow::MainWindow(QWidget *parent) :
     server = new Server();
 
     load_settings(QCoreApplication::instance()->applicationDirPath()+"/config.cfg");
+    updateServerParams();
 
-    server->setRemotePort(ui->lineEdit_port->text().toInt());
-    server->setLocalPort(ui->lineEdit_port_client->text().toInt());
-    server->setRemoteIPAddress(ui->lineEdit_ip->text());
-    server->setDeviceId(ui->spinBox_id->value());
+    QObject::connect(server, SIGNAL(set_config(QString,int)), this, SLOT(set_config(QString,int)));
     QObject::connect(server, SIGNAL(error(QString)), this, SLOT(get_error(QString)));
     QObject::connect(server, SIGNAL(write_message(QString)), this, SLOT(get_message(QString)));
 
@@ -114,6 +112,14 @@ void MainWindow::get_message(QString message)
 void MainWindow::get_error(QString message)
 {
     QMessageBox::information(this, tr("CStation"), message);
+}
+
+void MainWindow::set_config(QString ip_addr, int ds_id)
+{
+    ui->lineEdit_ip->setText(ip_addr);
+    ui->spinBox_id->setValue(ds_id);
+    save_settings(QCoreApplication::instance()->applicationDirPath()+"/config.cfg");
+    server->Reset();
 }
 
 void MainWindow::on_pushButton_listen_clicked()
