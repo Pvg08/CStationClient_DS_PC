@@ -4,6 +4,7 @@ ClientActionConfig::ClientActionConfig(AbstractServer *parent):
     ClientAction(parent)
 {
     param_prefix = "SERV_CONF";
+    item_name = tr("Configuration mode");
 }
 
 QString ClientActionConfig::getDescriptionString()

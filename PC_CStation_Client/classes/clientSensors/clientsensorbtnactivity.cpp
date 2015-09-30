@@ -4,6 +4,7 @@ ClientSensorBtnActivity::ClientSensorBtnActivity(AbstractServer *parent):
     ClientSensor(parent)
 {
     letter = 'O';
+    item_name = tr("Action button");
 }
 
 QString ClientSensorBtnActivity::getDescriptionString()

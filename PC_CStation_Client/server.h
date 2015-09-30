@@ -12,6 +12,7 @@
 #include "./classes/clientSensors/clientsensorbtnactivity.h"
 #include "./classes/clientActions/clientactionreset.h"
 #include "./classes/clientActions/clientactionconfig.h"
+#include "./classes/clientActions/clientactionindication.h"
 
 class Server : public AbstractServer
 {
@@ -37,8 +38,8 @@ public:
 
     void setSendingInterval(unsigned seconds);
 
-    QMap<QString, ClientSensor *> *clientSensors();
-    QMap<QString, ClientAction *> *clientActions();
+    QHash<QString, ClientSensor *> *clientSensors();
+    QHash<QString, ClientAction *> *clientActions();
 
 signals:
     void set_config(QString, int);
@@ -62,8 +63,8 @@ private:
     QString remoteIPAddress;
     QTcpSocket *remote_server_socket;
     QMap<quint32, QTcpSocket *> *sockets;
-    QMap<QString, ClientSensor *> *sensors;
-    QMap<QString, ClientAction *> *actions;
+    QHash<QString, ClientSensor *> *sensors;
+    QHash<QString, ClientAction *> *actions;
 
     QString thisIPAddress;
     QTcpServer *tcpServer;

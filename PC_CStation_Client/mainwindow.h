@@ -5,6 +5,7 @@
 #include <QMessageBox>
 #include <QListWidgetItem>
 #include "server.h"
+#include "./widgets/clientitemlistsselector.h"
 
 namespace Ui {
 class MainWindow;
@@ -22,17 +23,18 @@ private slots:
     void get_message(QString message);
     void get_error(QString message);
     void set_config(QString ip_addr, int ds_id);
+    void updateIndicationState();
 
     void on_pushButton_listen_clicked();
     void on_pushButton_config_clicked();
     void on_pushButton_action_pressed();
     void on_pushButton_action_released();
-    void on_listWidget_sensors_itemChanged(QListWidgetItem *item);
-    void on_listWidget_actions_itemChanged(QListWidgetItem *item);
 
 private:
     Ui::MainWindow *ui;
     Server* server;
+    ClientItemListsSelector *listItemsActions;
+    ClientItemListsSelector *listItemsSensors;
 
     void updateServerParams();
     void save_settings(QString filename);

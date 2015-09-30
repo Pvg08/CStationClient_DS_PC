@@ -18,14 +18,24 @@ Server::Server()
     shotTimer->setSingleShot(false);
     connect(shotTimer, SIGNAL(timeout()), this, SLOT(sendingTimeout()));
 
-    sensors = new QMap<QString, ClientSensor *>();
-    actions = new QMap<QString, ClientAction *>();
+    sensors = new QHash<QString, ClientSensor *>();
+    actions = new QHash<QString, ClientAction *>();
 
     sensors->insert("activity", new ClientSensorActivity(this));
     sensors->insert("button_activity", new ClientSensorBtnActivity(this));
+    //sensors->insert("mouse", new ClientSensor(this));
+    //sensors->insert("keyboard", new ClientSensor(this));
+    //sensors->insert("activity_direction", new ClientSensor(this));
+    //sensors->insert("internet_speed", new ClientSensor(this));
 
+    //actions->insert("tone", new ClientAction(this));
+    //actions->insert("lcd", new ClientAction(this));
+    actions->insert("led", new ClientActionIndication(this));
+    //actions->insert("led_state", new ClientAction(this));
     actions->insert("reset", new ClientActionReset(this));
     actions->insert("config", new ClientActionConfig(this));
+    //actions->insert("display_state", new ClientAction(this));
+    //actions->insert("activity_direction", new ClientAction(this));
 
     initSensors();
 }
@@ -33,14 +43,14 @@ Server::Server()
 Server::~Server()
 {
     delete shotTimer;
-    QMap<QString, ClientSensor *>::const_iterator i = sensors->constBegin();
+    QHash<QString, ClientSensor *>::const_iterator i = sensors->constBegin();
     while (i != sensors->constEnd()) {
-        delete i.value();
+        if (i.value()) delete i.value();
         ++i;
     }
-    QMap<QString, ClientAction *>::const_iterator j = actions->constBegin();
+    QHash<QString, ClientAction *>::const_iterator j = actions->constBegin();
     while (j != actions->constEnd()) {
-        delete j.value();
+        if (j.value()) delete j.value();
         ++j;
     }
     delete sensors;
@@ -52,9 +62,9 @@ Server::~Server()
 
 void Server::initSensors()
 {
-    QMap<QString, ClientSensor *>::const_iterator i = sensors->constBegin();
+    QHash<QString, ClientSensor *>::const_iterator i = sensors->constBegin();
     while (i != sensors->constEnd()) {
-        connect(i.value(), SIGNAL(sendingInitiate(QString)), this, SLOT(sensorInitiateDataSending(QString)));
+        if (i.value()) connect(i.value(), SIGNAL(sendingInitiate(QString)), this, SLOT(sensorInitiateDataSending(QString)));
         ++i;
     }
 }
@@ -245,9 +255,9 @@ void Server::sendingTimeout()
         if (remote_server_socket) {
             QString message = "";
             QString tmpmessage = "";
-            QMap<QString, ClientSensor *>::const_iterator i = sensors->constBegin();
+            QHash<QString, ClientSensor *>::const_iterator i = sensors->constBegin();
             while (i != sensors->constEnd()) {
-                if (i.value()->isEnabled()) {
+                if (i.value() && i.value()->isEnabled()) {
                     tmpmessage = i.value()->getValueString();
                     if (!tmpmessage.isEmpty()) {
                         if (!message.isEmpty()) message+=";";
@@ -277,12 +287,12 @@ void Server::sensorInitiateDataSending(QString message)
     }
 }
 
-QMap<QString, ClientAction *> *Server::clientActions()
+QHash<QString, ClientAction *> *Server::clientActions()
 {
     return actions;
 }
 
-QMap<QString, ClientSensor *> *Server::clientSensors()
+QHash<QString, ClientSensor *> *Server::clientSensors()
 {
     return sensors;
 }
@@ -357,20 +367,30 @@ QTcpSocket *Server::getRemoteSocket()
 
 void Server::sendSensorsInfo()
 {
-    QMap<QString, ClientSensor *>::const_iterator i = sensors->constBegin();
+    QHash<QString, ClientSensor *>::const_iterator i = sensors->constBegin();
     while (i != sensors->constEnd()) {
-        QString message = "DS_INFO="+i.value()->getDescriptionString()+"\r\n";
-        SendData(message);
+        if (i.value() && i.value()->isEnabled()) {
+            QString message = i.value()->getDescriptionString();
+            if (!message.isEmpty()) {
+                message = "DS_INFO="+message+"\r\n";
+                SendData(message);
+            }
+        }
         ++i;
     }
 }
 
 void Server::sendActionsInfo()
 {
-    QMap<QString, ClientAction *>::const_iterator i = actions->constBegin();
+    QHash<QString, ClientAction *>::const_iterator i = actions->constBegin();
     while (i != actions->constEnd()) {
-        QString message = "DC_INFO="+i.value()->getDescriptionString()+"\r\n";
-        SendData(message);
+        if (i.value() && i.value()->isEnabled()) {
+            QString message = i.value()->getDescriptionString();
+            if (!message.isEmpty()) {
+                message = "DC_INFO="+message+"\r\n";
+                SendData(message);
+            }
+        }
         ++i;
     }
 }
@@ -388,9 +408,9 @@ void Server::recieveData()
         delete mem;
         emit write_message(tr("Recieved data (size=%1) from %2. Content: \"%3\"").arg(size).arg(tcpSocket->peerAddress().toString()).arg(message));
         if (!is_config_mode) {
-            QMap<QString, ClientAction *>::const_iterator i = actions->constBegin();
+            QHash<QString, ClientAction *>::const_iterator i = actions->constBegin();
             while (i != actions->constEnd()) {
-                if (i.value()->isEnabled() && message.startsWith(i.value()->getPrefix()+"=")) {
+                if (i.value() && i.value()->isEnabled() && !i.value()->getPrefix().isEmpty() && message.startsWith(i.value()->getPrefix()+"=")) {
                     QString params_message = message;
                     params_message.replace(QRegExp("^("+i.value()->getPrefix()+")\\="), "");
                     i.value()->setParamsFromMessage(params_message);

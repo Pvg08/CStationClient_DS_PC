@@ -10,6 +10,27 @@ MainWindow::MainWindow(QWidget *parent) :
     setFixedSize(width(), height());
     server = new Server();
 
+    listItemsActions = new ClientItemListsSelector(this, tr("Active actions:"));
+    listItemsSensors = new ClientItemListsSelector(this, tr("Active sensors:"));
+
+    QHash<QString, ClientAction *>::const_iterator i = server->clientActions()->constBegin();
+    while (i != server->clientActions()->constEnd()) {
+        if (i.value()) {
+            listItemsActions->addClientItem(i.value());
+        }
+        ++i;
+    }
+    QHash<QString, ClientSensor *>::const_iterator j = server->clientSensors()->constBegin();
+    while (j != server->clientSensors()->constEnd()) {
+        if (j.value()) {
+            listItemsSensors->addClientItem(j.value());
+        }
+        ++j;
+    }
+
+    listItemsActions->setGeometry(10, 141, 181, 221);
+    listItemsSensors->setGeometry(210, 141, 181, 221);
+
     load_settings(QCoreApplication::instance()->applicationDirPath()+"/config.cfg");
     updateServerParams();
 
@@ -17,11 +38,18 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(server, SIGNAL(error(QString)), this, SLOT(get_error(QString)));
     QObject::connect(server, SIGNAL(write_message(QString)), this, SLOT(get_message(QString)));
 
+    ClientAction* indication_action = server->clientActions()->value("led", NULL);
+    if (indication_action) {
+        QObject::connect(indication_action, SIGNAL(updateState()), this, SLOT(updateIndicationState()));
+    }
+
     server->StartServer();
 }
 
 MainWindow::~MainWindow()
 {
+    delete listItemsActions;
+    delete listItemsSensors;
     delete ui;
     delete server;
 }
@@ -50,21 +78,8 @@ void MainWindow::save_settings(QString filename)
         settings.setValue("window/top", gg.top());
     }
 
-    int i = 0;
-    QListWidgetItem* t = ui->listWidget_sensors->item(i);
-    while (t) {
-        settings.setValue("sensors/item"+QString::number(i), t->checkState() == Qt::Checked);
-        i++;
-        t = ui->listWidget_sensors->item(i);
-    }
-
-    i = 0;
-    t = ui->listWidget_actions->item(i);
-    while (t) {
-        settings.setValue("actions/item"+QString::number(i), t->checkState() == Qt::Checked);
-        i++;
-        t = ui->listWidget_actions->item(i);
-    }
+    listItemsActions->saveStatesToSettings(&settings, "actions");
+    listItemsSensors->saveStatesToSettings(&settings, "sensors");
 }
 
 void MainWindow::load_settings(QString filename)
@@ -87,21 +102,8 @@ void MainWindow::load_settings(QString filename)
         showMinimized();
     }
 
-    int i = 0;
-    QListWidgetItem* t = ui->listWidget_sensors->item(i);
-    while (t) {
-        t->setCheckState(settings.value("sensors/item"+QString::number(i), t->checkState() == Qt::Checked).toBool() ? Qt::Checked : Qt::Unchecked);
-        i++;
-        t = ui->listWidget_sensors->item(i);
-    }
-
-    i = 0;
-    t = ui->listWidget_actions->item(i);
-    while (t) {
-        t->setCheckState(settings.value("actions/item"+QString::number(i), t->checkState() == Qt::Checked).toBool() ? Qt::Checked : Qt::Unchecked);
-        i++;
-        t = ui->listWidget_actions->item(i);
-    }
+    listItemsActions->loadStatesFromSettings(&settings, "actions");
+    listItemsSensors->loadStatesFromSettings(&settings, "sensors");
 }
 
 void MainWindow::get_message(QString message)
@@ -120,6 +122,19 @@ void MainWindow::set_config(QString ip_addr, int ds_id)
     ui->spinBox_id->setValue(ds_id);
     save_settings(QCoreApplication::instance()->applicationDirPath()+"/config.cfg");
     server->Reset();
+}
+
+void MainWindow::updateIndicationState()
+{
+    ClientAction *action = dynamic_cast<ClientAction*>(this->sender());
+    if (action) {
+        if (action->getSettings()->value("VALUE", "0").toInt()) {
+            ui->frame_indication->setStyleSheet("background-color:rgb(50,180,255);");
+        } else {
+            ui->frame_indication->setStyleSheet("background-color:rgb(127,127,127);");
+        }
+        ui->frame_indication->repaint();
+    }
 }
 
 void MainWindow::on_pushButton_listen_clicked()
@@ -158,40 +173,5 @@ void MainWindow::on_pushButton_action_released()
     if (sensor) {
         sensor->getSettings()->insert("VALUE", "no");
         sensor->sendNow();
-    }
-}
-
-int MainWindow::getItemIndex(QListWidget *w, QListWidgetItem *item)
-{
-    int index = -1;
-    int i = 0;
-    QListWidgetItem* t = w->item(i);
-    while (t && index<0) {
-        if (t==item) index = i;
-        i++;
-        t = w->item(i);
-    }
-    return index;
-}
-
-void MainWindow::on_listWidget_sensors_itemChanged(QListWidgetItem *item)
-{
-    int index = getItemIndex(ui->listWidget_sensors, item);
-    if (index>=0) {
-        ClientSensor* sensor = server->clientSensors()->values().value(index, NULL);
-        if (sensor && sensor->isEnabled() != (item->checkState() == Qt::Checked)) {
-            sensor->setEnabled(item->checkState() == Qt::Checked);
-        }
-    }
-}
-
-void MainWindow::on_listWidget_actions_itemChanged(QListWidgetItem *item)
-{
-    int index = getItemIndex(ui->listWidget_actions, item);
-    if (index>=0) {
-        ClientAction* action = server->clientActions()->values().value(index, NULL);
-        if (action && action->isEnabled() != (item->checkState() == Qt::Checked)) {
-            action->setEnabled(item->checkState() == Qt::Checked);
-        }
     }
 }

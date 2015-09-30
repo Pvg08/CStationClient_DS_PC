@@ -4,6 +4,7 @@ ClientActionReset::ClientActionReset(AbstractServer *parent):
     ClientAction(parent)
 {
     param_prefix = "SERV_RST";
+    item_name = tr("Reset");
 }
 
 QString ClientActionReset::getDescriptionString()

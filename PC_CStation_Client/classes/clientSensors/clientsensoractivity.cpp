@@ -4,6 +4,7 @@ ClientSensorActivity::ClientSensorActivity(AbstractServer *parent):
     ClientSensor(parent)
 {
     letter = 'A';
+    item_name = tr("Client activity");
 }
 
 QString ClientSensorActivity::getDescriptionString()

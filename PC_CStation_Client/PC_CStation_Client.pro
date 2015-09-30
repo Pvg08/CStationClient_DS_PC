@@ -20,7 +20,10 @@ SOURCES += main.cpp\
     classes/clientSensors/clientsensoractivity.cpp \
     classes/clientActions/clientactionreset.cpp \
     classes/clientActions/clientactionconfig.cpp \
-    classes/clientSensors/clientsensorbtnactivity.cpp
+    classes/clientSensors/clientsensorbtnactivity.cpp \
+    classes/clientActions/clientactionindication.cpp \
+    widgets/clientitemlistsselector.cpp \
+    classes/clientitem.cpp
 
 HEADERS  += mainwindow.h \
     abstractserver.h \
@@ -30,8 +33,12 @@ HEADERS  += mainwindow.h \
     classes/clientSensors/clientsensoractivity.h \
     classes/clientActions/clientactionreset.h \
     classes/clientActions/clientactionconfig.h \
-    classes/clientSensors/clientsensorbtnactivity.h
+    classes/clientSensors/clientsensorbtnactivity.h \
+    classes/clientActions/clientactionindication.h \
+    widgets/clientitemlistsselector.h \
+    classes/clientitem.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    widgets/clientitemlistsselector.ui
 
 TRANSLATIONS += translations/PC_CStation_Client_ru_RU.ts
