@@ -12,7 +12,7 @@ public:
     explicit ClientItem(AbstractServer *parent);
     ~ClientItem();
 
-    QMap<QString, QString> *getSettings();
+    ClientItemSettings *getSettings();
     virtual bool setParamsFromMessage(QString message);
     virtual QString getDescriptionString();
     virtual void setEnabled(bool enabled);
@@ -22,9 +22,10 @@ public:
 signals:
 
 protected:
-    QMap<QString, QString> *settings;
+    ClientItemSettings *settings;
     bool is_enabled;
     QString item_name;
+    QString description_string;
 };
 
 #endif // CLIENTITEM_H

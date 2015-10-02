@@ -8,7 +8,6 @@ class ClientSensorActivity : public ClientSensor
     Q_OBJECT
 public:
     ClientSensorActivity(AbstractServer *parent);
-    virtual QString getDescriptionString();
     virtual QString getValueString();
 };
 

@@ -31,10 +31,10 @@ Server::Server()
     //actions->insert("tone", new ClientAction(this));
     //actions->insert("lcd", new ClientAction(this));
     actions->insert("led", new ClientActionIndication(this));
-    //actions->insert("led_state", new ClientAction(this));
+    actions->insert("led_state", new ClientActionIndicationState(this));
     actions->insert("reset", new ClientActionReset(this));
     actions->insert("config", new ClientActionConfig(this));
-    //actions->insert("display_state", new ClientAction(this));
+    actions->insert("display_state", new ClientActionSetDisplayState(this));
     //actions->insert("activity_direction", new ClientAction(this));
 
     initSensors();
@@ -149,6 +149,16 @@ bool Server::SendData(QString message)
         }
     }
     return result;
+}
+
+ClientItemSettings* Server::GetItemSettings(QString itemname)
+{
+    ClientItem *settitem = NULL;
+    settitem = actions->value(itemname, NULL);
+    if (!settitem) {
+        settitem = sensors->value(itemname, NULL);
+    }
+    return settitem ? settitem->getSettings() : NULL;
 }
 
 void Server::sessionOpen()

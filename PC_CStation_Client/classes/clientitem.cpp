@@ -2,9 +2,10 @@
 
 ClientItem::ClientItem(AbstractServer *parent) : QObject(parent)
 {
-    settings = new QMap<QString, QString>();
+    settings = new ClientItemSettings();
     is_enabled = true;
     item_name = tr("Item");
+    description_string = "";
 }
 
 ClientItem::~ClientItem()
@@ -12,7 +13,7 @@ ClientItem::~ClientItem()
     delete settings;
 }
 
-QMap<QString, QString> *ClientItem::getSettings()
+ClientItemSettings *ClientItem::getSettings()
 {
     return settings;
 }
@@ -25,7 +26,7 @@ bool ClientItem::setParamsFromMessage(QString message)
 
 QString ClientItem::getDescriptionString()
 {
-    return "";
+    return description_string;
 }
 
 void ClientItem::setEnabled(bool enabled)

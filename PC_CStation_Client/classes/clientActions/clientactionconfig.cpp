@@ -5,11 +5,7 @@ ClientActionConfig::ClientActionConfig(AbstractServer *parent):
 {
     param_prefix = "SERV_CONF";
     item_name = tr("Configuration mode");
-}
-
-QString ClientActionConfig::getDescriptionString()
-{
-    return "Config";
+    description_string = "Config";
 }
 
 bool ClientActionConfig::runAction()

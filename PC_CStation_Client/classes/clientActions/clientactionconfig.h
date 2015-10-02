@@ -8,7 +8,6 @@ class ClientActionConfig : public ClientAction
     Q_OBJECT
 public:
     ClientActionConfig(AbstractServer *parent);
-    virtual QString getDescriptionString();
     virtual bool runAction();
 };
 

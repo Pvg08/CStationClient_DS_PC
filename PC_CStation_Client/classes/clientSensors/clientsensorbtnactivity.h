@@ -8,7 +8,6 @@ class ClientSensorBtnActivity : public ClientSensor
     Q_OBJECT
 public:
     ClientSensorBtnActivity(AbstractServer *parent);
-    virtual QString getDescriptionString();
     virtual QString getValueString();
 };
 

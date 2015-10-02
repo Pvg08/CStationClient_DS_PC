@@ -5,11 +5,7 @@ ClientActionReset::ClientActionReset(AbstractServer *parent):
 {
     param_prefix = "SERV_RST";
     item_name = tr("Reset");
-}
-
-QString ClientActionReset::getDescriptionString()
-{
-    return "Reset";
+    description_string = "Reset";
 }
 
 bool ClientActionReset::runAction()

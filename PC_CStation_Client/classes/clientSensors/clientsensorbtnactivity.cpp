@@ -5,11 +5,7 @@ ClientSensorBtnActivity::ClientSensorBtnActivity(AbstractServer *parent):
 {
     letter = 'O';
     item_name = tr("Action button");
-}
-
-QString ClientSensorBtnActivity::getDescriptionString()
-{
-    return QString(letter) + ":enum(no,yes)[]|Outer signal";
+    description_string = QString(letter) + ":enum(no,yes)[]|Outer signal";
 }
 
 QString ClientSensorBtnActivity::getValueString()

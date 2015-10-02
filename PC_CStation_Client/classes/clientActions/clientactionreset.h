@@ -8,7 +8,6 @@ class ClientActionReset : public ClientAction
     Q_OBJECT
 public:
     ClientActionReset(AbstractServer *parent);
-    virtual QString getDescriptionString();
     virtual bool runAction();
 };
 

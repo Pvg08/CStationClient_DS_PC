@@ -13,6 +13,8 @@
 #include "./classes/clientActions/clientactionreset.h"
 #include "./classes/clientActions/clientactionconfig.h"
 #include "./classes/clientActions/clientactionindication.h"
+#include "./classes/clientActions/clientactionindicationstate.h"
+#include "./classes/clientActions/clientactionsetdisplaystate.h"
 
 class Server : public AbstractServer
 {
@@ -27,6 +29,8 @@ public:
     void ConfigurationMode();
     bool SendData(QString message);
 
+    ClientItemSettings* GetItemSettings(QString itemname);
+
     int getRemotePort() const;
     void setRemotePort(int value);
     QString getRemoteIPAddress() const;
@@ -35,7 +39,6 @@ public:
     void setDeviceId(int value);
     int getLocalPort() const;
     void setLocalPort(int value);
-
     void setSendingInterval(unsigned seconds);
 
     QHash<QString, ClientSensor *> *clientSensors();

@@ -2,6 +2,9 @@
 #define ABSTRACTSERVER_H
 
 #include <QObject>
+#include <QMap>
+
+typedef QMap<QString, QString> ClientItemSettings;
 
 class AbstractServer : public QObject
 {
@@ -12,6 +15,7 @@ public:
     virtual void StartServer() = 0;
     virtual void StopServer() = 0;
     virtual void ConfigurationMode() = 0;
+    virtual ClientItemSettings* GetItemSettings(QString itemname) = 0;
     virtual bool SendData(QString message) = 0;
 
 signals:

@@ -5,11 +5,7 @@ ClientActionIndication::ClientActionIndication(AbstractServer *parent):
 {
     param_prefix = "LED_SET";
     item_name = tr("Set indication");
-}
-
-QString ClientActionIndication::getDescriptionString()
-{
-    return "Led";
+    description_string = "Led";
 }
 
 bool ClientActionIndication::runAction()
