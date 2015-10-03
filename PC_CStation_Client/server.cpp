@@ -17,6 +17,10 @@ Server::Server()
     shotTimer->setInterval(100000);
     shotTimer->setSingleShot(false);
     connect(shotTimer, SIGNAL(timeout()), this, SLOT(sendingTimeout()));
+    connectionTimer = new QTimer(this);
+    connectionTimer->setInterval(20000);
+    connectionTimer->setSingleShot(false);
+    connect(connectionTimer, SIGNAL(timeout()), this, SLOT(connectionTimeout()));
 
     sensors = new QHash<QString, ClientSensor *>();
     actions = new QHash<QString, ClientAction *>();
@@ -29,7 +33,7 @@ Server::Server()
     //sensors->insert("internet_speed", new ClientSensor(this));
 
     actions->insert("tone", new ClientActionTone(this));
-    //actions->insert("lcd", new ClientAction(this));
+    actions->insert("lcd", new ClientActionLcd(this));
     actions->insert("led", new ClientActionIndication(this));
     actions->insert("led_state", new ClientActionIndicationState(this));
     actions->insert("reset", new ClientActionReset(this));
@@ -208,16 +212,7 @@ void Server::sessionOpen()
 
     emit write_message(tr("The server is running on IP: %1 port: %2\n").arg(thisIPAddress).arg(tcpServer->serverPort()));
 
-    if (!is_config_mode) {
-        getRemoteSocket();
-        if (remote_server_socket) {
-            SendData("DS=" + QString::number(device_id) + "\r\n");
-            sendSensorsInfo();
-            sendActionsInfo();
-            shotTimer->start();
-            sendingTimeout();
-        }
-    }
+    connectionTimeout();
 }
 
 void Server::recieveConnection()
@@ -267,7 +262,7 @@ void Server::displayError(QAbstractSocket::SocketError socketError)
 
 void Server::sendingTimeout()
 {
-    if (!is_init_connection && !is_config_mode) {
+    if (!is_init_connection && !is_config_mode && !connectionTimer->isActive()) {
         getRemoteSocket();
         if (remote_server_socket) {
             QString message = "";
@@ -283,6 +278,7 @@ void Server::sendingTimeout()
                 }
                 ++i;
             }
+            emit beforeSensorsSending();
             if (!message.isEmpty()) {
                 if (getRemoteSocket()) {
                     message = "DS_V={"+message+"}";
@@ -293,11 +289,27 @@ void Server::sendingTimeout()
     }
 }
 
+void Server::connectionTimeout()
+{
+    if (!is_config_mode) {
+        getRemoteSocket();
+        if (remote_server_socket) {
+            SendData("DS=" + QString::number(device_id) + "\r\n");
+            sendSensorsInfo();
+            sendActionsInfo();
+            shotTimer->start();
+            sendingTimeout();
+        }
+        if (!remote_server_socket) connectionTimer->start();
+    }
+}
+
 void Server::sensorInitiateDataSending(QString message)
 {
     ClientSensor *sensor = dynamic_cast<ClientSensor*>(this->sender());
-    if (!is_config_mode && sensor && !message.isEmpty()) {
+    if (!is_config_mode && sensor && !message.isEmpty() && !connectionTimer->isActive()) {
         if (getRemoteSocket()) {
+            emit beforeSensorsSending();
             message = "DS_V={"+message+"}";
             SendData(message);
         }
@@ -379,6 +391,11 @@ QTcpSocket *Server::getRemoteSocket()
         remote_server_socket = NULL;
     }
     is_init_connection = false;
+    if (!remote_server_socket) {
+        connectionTimer->start();
+    } else {
+        connectionTimer->stop();
+    }
     return remote_server_socket;
 }
 
@@ -452,6 +469,7 @@ void Server::clientDisconnected()
     QTcpSocket *connection = dynamic_cast<QTcpSocket*>(this->sender());
     if (connection && connection==remote_server_socket) {
         emit write_message(tr("Socket removed."));
+        connectionTimer->start();
     }
 }
 

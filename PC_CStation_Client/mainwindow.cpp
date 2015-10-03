@@ -28,8 +28,8 @@ MainWindow::MainWindow(QWidget *parent) :
         ++j;
     }
 
-    listItemsActions->setGeometry(10, 141, 181, 221);
-    listItemsSensors->setGeometry(210, 141, 181, 221);
+    ui->widget_clientactions->layout()->addWidget(listItemsActions);
+    ui->widget_clientsensors->layout()->addWidget(listItemsSensors);
 
     load_settings(QCoreApplication::instance()->applicationDirPath()+"/config.cfg");
     updateServerParams();
@@ -41,6 +41,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ClientAction* indication_action = server->clientActions()->value("led", NULL);
     if (indication_action) {
         QObject::connect(indication_action, SIGNAL(updateState()), this, SLOT(updateIndicationState()));
+    }
+
+    ClientAction* lcd_action = server->clientActions()->value("lcd", NULL);
+    if (lcd_action) {
+        QObject::connect(lcd_action, SIGNAL(updateState()), this, SLOT(updateLcdState()));
     }
 
     server->StartServer();
@@ -113,7 +118,7 @@ void MainWindow::get_message(QString message)
 
 void MainWindow::get_error(QString message)
 {
-    QMessageBox::information(this, tr("CStation"), message);
+    ui->statusBar->showMessage("Error: "+message, 10000);
 }
 
 void MainWindow::set_config(QString ip_addr, int ds_id)
@@ -134,6 +139,15 @@ void MainWindow::updateIndicationState()
             ui->frame_indication->setStyleSheet("background-color:rgb(127,127,127);");
         }
         ui->frame_indication->repaint();
+    }
+}
+
+void MainWindow::updateLcdState()
+{
+    ClientAction *action = dynamic_cast<ClientAction*>(this->sender());
+    if (action) {
+        QString msg = action->getSettings()->value("TEXT", "");
+        ui->label_lcd->setText(msg);
     }
 }
 

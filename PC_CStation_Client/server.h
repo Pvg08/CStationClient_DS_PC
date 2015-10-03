@@ -11,6 +11,7 @@
 #include "./classes/clientSensors/clientsensoractivity.h"
 #include "./classes/clientSensors/clientsensorbtnactivity.h"
 #include "./classes/clientActions/clientactiontone.h"
+#include "./classes/clientActions/clientactionlcd.h"
 #include "./classes/clientActions/clientactionreset.h"
 #include "./classes/clientActions/clientactionconfig.h"
 #include "./classes/clientActions/clientactionindication.h"
@@ -48,6 +49,7 @@ public:
 
 signals:
     void set_config(QString, int);
+    void beforeSensorsSending();
 
 private slots:
     void sessionOpen();
@@ -57,6 +59,7 @@ private slots:
     void socketStateChanged(QAbstractSocket::SocketState state);
     void displayError(QAbstractSocket::SocketError socketError);
     void sendingTimeout();
+    void connectionTimeout();
     void sensorInitiateDataSending(QString message);
 
 private:
@@ -76,6 +79,7 @@ private:
     QNetworkSession *networkSession;
 
     QTimer *shotTimer;
+    QTimer *connectionTimer;
 
     QTcpSocket *getRemoteSocket();
     void sendSensorsInfo();

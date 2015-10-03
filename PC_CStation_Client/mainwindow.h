@@ -24,6 +24,7 @@ private slots:
     void get_error(QString message);
     void set_config(QString ip_addr, int ds_id);
     void updateIndicationState();
+    void updateLcdState();
 
     void on_pushButton_listen_clicked();
     void on_pushButton_config_clicked();
