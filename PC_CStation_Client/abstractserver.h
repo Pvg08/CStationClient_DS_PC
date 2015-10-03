@@ -16,6 +16,7 @@ public:
     virtual void StopServer() = 0;
     virtual void ConfigurationMode() = 0;
     virtual ClientItemSettings* GetItemSettings(QString itemname) = 0;
+    virtual bool RunAction(QString action_name) = 0;
     virtual bool SendData(QString message) = 0;
 
 signals:

@@ -10,6 +10,7 @@
 #include "./classes/clientsensor.h"
 #include "./classes/clientSensors/clientsensoractivity.h"
 #include "./classes/clientSensors/clientsensorbtnactivity.h"
+#include "./classes/clientActions/clientactiontone.h"
 #include "./classes/clientActions/clientactionreset.h"
 #include "./classes/clientActions/clientactionconfig.h"
 #include "./classes/clientActions/clientactionindication.h"
@@ -30,6 +31,7 @@ public:
     bool SendData(QString message);
 
     ClientItemSettings* GetItemSettings(QString itemname);
+    bool RunAction(QString action_name);
 
     int getRemotePort() const;
     void setRemotePort(int value);

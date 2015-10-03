@@ -28,7 +28,7 @@ Server::Server()
     //sensors->insert("activity_direction", new ClientSensor(this));
     //sensors->insert("internet_speed", new ClientSensor(this));
 
-    //actions->insert("tone", new ClientAction(this));
+    actions->insert("tone", new ClientActionTone(this));
     //actions->insert("lcd", new ClientAction(this));
     actions->insert("led", new ClientActionIndication(this));
     actions->insert("led_state", new ClientActionIndicationState(this));
@@ -159,6 +159,13 @@ ClientItemSettings* Server::GetItemSettings(QString itemname)
         settitem = sensors->value(itemname, NULL);
     }
     return settitem ? settitem->getSettings() : NULL;
+}
+
+bool Server::RunAction(QString action_name)
+{
+    ClientAction *settitem = NULL;
+    settitem = actions->value(action_name, NULL);
+    return settitem ? settitem->runAction() : false;
 }
 
 void Server::sessionOpen()

@@ -16,7 +16,7 @@ bool ClientActionIndicationState::runAction()
         ClientItemSettings* led_settings = server->GetItemSettings("led");
         ClientItemSettings* tone_settings = server->GetItemSettings("tone");
         bool prog_led_state = led_settings && led_settings->value("VALUE", "0").toInt()!=0;
-        bool tone_state = tone_settings && tone_settings->value("VALUE", "0").toInt()!=0;
+        bool tone_state = tone_settings && tone_settings->value("ACTIVE", "0").toInt()!=0;
 
         QString states_str = "DS_STATE={";
         states_str = states_str + "\"LED\":\""+(prog_led_state ? "on" : "off")+"\", ";
