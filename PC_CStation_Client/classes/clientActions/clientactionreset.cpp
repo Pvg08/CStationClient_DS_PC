@@ -5,7 +5,7 @@ ClientActionReset::ClientActionReset(AbstractServer *parent):
 {
     param_prefix = "SERV_RST";
     item_name = tr("Reset");
-    description_string = "Reset";
+    description_string = "{CODE:'reset',PREFIX:'SERV_RST',PARAM:{0:{VALUE:1,SKIP:1}}}";
 }
 
 bool ClientActionReset::runAction()

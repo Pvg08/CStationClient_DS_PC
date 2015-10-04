@@ -5,7 +5,7 @@ ClientActionIndication::ClientActionIndication(AbstractServer *parent):
 {
     param_prefix = "LED_SET";
     item_name = tr("Set indication");
-    description_string = "Led";
+    description_string = "{CODE:'led',PREFIX:'LED_SET',PARAM:{0:{NAME:'Led state',TYPE:'BOOL'}}}";
 }
 
 bool ClientActionIndication::runAction()

@@ -5,7 +5,7 @@ ClientActionConfig::ClientActionConfig(AbstractServer *parent):
 {
     param_prefix = "SERV_CONF";
     item_name = tr("Configuration mode");
-    description_string = "Config";
+    description_string = "{CODE:'config',PREFIX:'SERV_CONF',PARAM:{0:{VALUE:1,SKIP:1}}}";
 }
 
 bool ClientActionConfig::runAction()
@@ -18,4 +18,3 @@ bool ClientActionConfig::runAction()
     }
     return result;
 }
-
