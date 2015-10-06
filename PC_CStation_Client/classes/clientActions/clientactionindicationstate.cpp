@@ -5,7 +5,7 @@ ClientActionIndicationState::ClientActionIndicationState(AbstractServer *parent)
 {
     param_prefix = "STATES_REQUEST";
     item_name = tr("Indication state request");
-    description_string = "{CODE:'state',PREFIX:'STATES_REQUEST',PARAM:{0:{VALUE:1,SKIP:1,LISTEN:1}}}";
+    description_string = "{'CODE':'state','PREFIX':'STATES_REQUEST','LISTEN':1,'PARAM':[{'VALUE':1,'SKIP':1}]}";
 }
 
 bool ClientActionIndicationState::runAction()

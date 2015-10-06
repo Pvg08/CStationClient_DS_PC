@@ -5,7 +5,7 @@ ClientActionSetDisplayState::ClientActionSetDisplayState(AbstractServer *parent)
 {
     param_prefix = "SET_DISPLAY_ST";
     item_name = tr("Set display state");
-    description_string = "{CODE:'displaystate',PREFIX:'SET_DISPLAY_ST',PARAM:{0:{NAME:'Set display state',TYPE:'BOOL'}}}";
+    description_string = "{'CODE':'displaystate','PREFIX':'SET_DISPLAY_ST','PARAM':[{'NAME':'Display state','TYPE':'BOOL'}]}";
 }
 
 bool ClientActionSetDisplayState::runAction()

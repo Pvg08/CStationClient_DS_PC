@@ -297,6 +297,7 @@ void Server::connectionTimeout()
             SendData("DS=" + QString::number(device_id) + "\r\n");
             sendSensorsInfo();
             sendActionsInfo();
+            sendReady();
             shotTimer->start();
             sendingTimeout();
         }
@@ -427,6 +428,11 @@ void Server::sendActionsInfo()
         }
         ++i;
     }
+}
+
+void Server::sendReady()
+{
+    SendData("DS_READY=1\r\n");
 }
 
 void Server::recieveData()

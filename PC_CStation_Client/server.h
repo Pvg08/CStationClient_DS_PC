@@ -84,6 +84,7 @@ private:
     QTcpSocket *getRemoteSocket();
     void sendSensorsInfo();
     void sendActionsInfo();
+    void sendReady();
     void initSensors();
     void ResetServer(bool is_configuration);
 };

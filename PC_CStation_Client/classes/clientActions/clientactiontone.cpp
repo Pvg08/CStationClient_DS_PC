@@ -5,7 +5,8 @@ ClientActionTone::ClientActionTone(AbstractServer *parent):
 {
     param_prefix = "TONE";
     item_name = tr("Tone");
-    description_string = "{CODE:'tone',PREFIX:'TONE',PARAMS:{0:{NAME:'Led indication',SKIP:1,VALUE:'L',TYPE:'BOOL'},1:{NAME:'Frequency',TYPE:'UINT',DEFAULT:'500'},2:{NAME:'Period',TYPE:'UINT'}}}";
+    description_string = "{'CODE':'tone','PREFIX':'TONE','PARAM':[{'NAME':'Led indication','SKIP':1,'VALUE':'L','TYPE':'BOOL'},{'NAME':'Frequency','TYPE':'UINT','DEFAULT':500},{'NAME':'Period','TYPE':'UINT'}],'BUTTONS':[{'NAME':'Reset','PARAMSET':['0']}]}";
+
     system = NULL;
     updateTimer = new QTimer();
     periodicToneTimer = new QTimer();

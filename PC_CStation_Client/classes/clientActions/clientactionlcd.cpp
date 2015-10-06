@@ -5,7 +5,8 @@ ClientActionLcd::ClientActionLcd(AbstractServer *parent):
 {
     param_prefix = "SERV_LT";
     item_name = tr("Display text");
-    description_string = "{CODE:'lcd',PREFIX:'SERV_LT',PARAM:{0:{NAME:'Display text',TYPE:'STRING'}},BUTTONS:{NAME:'Reset',PARAMSET:{0:''}}}";
+    description_string = "{'CODE':'lcd','PREFIX':'SERV_LT','PARAM':[{'NAME':'Display text','TYPE':'STRING'}],'BUTTONS':[{'NAME':'Reset','PARAMSET':['']}]}";
+
     fixed_mode = false;
     display_text = "";
 
