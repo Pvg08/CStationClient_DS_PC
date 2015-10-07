@@ -3,12 +3,12 @@
 ClientSensorActivity::ClientSensorActivity(AbstractServer *parent):
     ClientSensor(parent)
 {
-    letter = 'A';
+    sensor_code = "A";
     item_name = tr("Client activity");
-    description_string = QString(letter) + ":enum(off,on)[60]|Activity";
+    description_string = "{'CODE':'"+sensor_code+"','NAME':'Activity','TIMEOUT':60,'TYPE':'ENUM','ENUMS':['off','on']}";
 }
 
 QString ClientSensorActivity::getValueString()
 {
-    return QString(letter) + "(on)";
+    return "'" + sensor_code + "':'on'";
 }

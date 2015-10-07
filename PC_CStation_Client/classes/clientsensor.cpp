@@ -2,7 +2,7 @@
 
 ClientSensor::ClientSensor(AbstractServer *parent) : ClientItem(parent)
 {
-    letter = ' ';
+    sensor_code = "";
 }
 
 QString ClientSensor::getValueString()

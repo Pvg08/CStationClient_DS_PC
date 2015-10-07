@@ -3,12 +3,12 @@
 ClientSensorBtnActivity::ClientSensorBtnActivity(AbstractServer *parent):
     ClientSensor(parent)
 {
-    letter = 'O';
+    sensor_code = "O";
     item_name = tr("Action button");
-    description_string = QString(letter) + ":enum(no,yes)[]|Outer signal";
+    description_string = "{'CODE':'"+sensor_code+"','NAME':'Outer signal','TYPE':'ENUM','ENUMS':['no','yes']}";
 }
 
 QString ClientSensorBtnActivity::getValueString()
 {
-    return QString(letter) + "("+settings->value("VALUE","no")+")";
+    return "'" + sensor_code + "':'"+settings->value("VALUE","no")+"'";
 }

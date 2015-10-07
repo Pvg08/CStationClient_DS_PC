@@ -19,7 +19,7 @@ signals:
     void sendingInitiate(QString);
 
 protected:
-    QChar letter;
+    QString sensor_code;
 };
 
 #endif // CLIENTSENSOR_H

@@ -272,7 +272,7 @@ void Server::sendingTimeout()
                 if (i.value() && i.value()->isEnabled()) {
                     tmpmessage = i.value()->getValueString();
                     if (!tmpmessage.isEmpty()) {
-                        if (!message.isEmpty()) message+=";";
+                        if (!message.isEmpty()) message+=",";
                         message += tmpmessage;
                     }
                 }
@@ -444,7 +444,7 @@ void Server::recieveData()
         in.setVersion(QDataStream::Qt_4_0);
         char *mem = new char[size];
         in.readRawData(mem, size);
-        QString message = QString::fromLatin1(mem, size);
+        QString message = QString::fromUtf8(mem, size);
         delete mem;
         emit write_message(tr("Recieved data (size=%1) from %2. Content: \"%3\"").arg(size).arg(tcpSocket->peerAddress().toString()).arg(message));
         if (!is_config_mode) {
