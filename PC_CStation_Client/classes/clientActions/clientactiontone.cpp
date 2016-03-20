@@ -42,11 +42,11 @@ ClientActionTone::~ClientActionTone()
     delete periodicToneTimer;
     if (system) {
         FMOD_RESULT result;
-        result = dsp->release();
+        result = FMOD_DSP_Release(dsp);
         ERRCHECK(result);
-        result = system->close();
+        result = FMOD_System_Close(system);
         ERRCHECK(result);
-        result = system->release();
+        result = FMOD_System_Release(system);
         ERRCHECK(result);
     }
 }
@@ -65,32 +65,32 @@ bool ClientActionTone::runAction()
     FMOD_RESULT result;
     if (!system) {
         channel = 0;
-        result = FMOD::System_Create(&system);
+        result = FMOD_System_Create(&system);
         ERRCHECK(result);
-        system->setDSPBufferSize(64, 1);
-        result = system->init(2, FMOD_INIT_STREAM_FROM_UPDATE | FMOD_INIT_MIX_FROM_UPDATE, NULL);
+        FMOD_System_SetDSPBufferSize(system, 64, 1);
+        result = FMOD_System_Init(system, 2, FMOD_INIT_STREAM_FROM_UPDATE | FMOD_INIT_MIX_FROM_UPDATE, NULL);
         ERRCHECK(result);
-        result = system->createDSPByType(FMOD_DSP_TYPE_OSCILLATOR, &dsp);
+        result = FMOD_System_CreateDSPByType(system, FMOD_DSP_TYPE_OSCILLATOR, &dsp);
         ERRCHECK(result);
     }
 
     if (channel) {
-        result = channel->stop();
+        result = FMOD_Channel_Stop(channel);
         ERRCHECK(result);
         channel = 0;
     }
 
     if (tone_frequency) {
 
-        result = dsp->setParameterFloat(FMOD_DSP_OSCILLATOR_RATE, (float) tone_frequency);
+        result = FMOD_DSP_SetParameterFloat(dsp, FMOD_DSP_OSCILLATOR_RATE, (float) tone_frequency);
         ERRCHECK(result);
-        result = system->playDSP(dsp, 0, true, &channel);
+        result = FMOD_System_PlayDSP(system, dsp, 0, true, &channel);
         ERRCHECK(result);
-        result = channel->setVolume(1.0f);
+        result = FMOD_Channel_SetVolume(channel, 1.0f);
         ERRCHECK(result);
 
         if (settings->value("MELODY").isEmpty()) {
-            result = dsp->setParameterInt(FMOD_DSP_OSCILLATOR_TYPE, 0);
+            result = FMOD_DSP_SetParameterInt(dsp,FMOD_DSP_OSCILLATOR_TYPE, 0);
             ERRCHECK(result);
             if (tone_periodic) {
                 periodicToneTimer->setInterval(tone_period);
@@ -98,7 +98,7 @@ bool ClientActionTone::runAction()
             }
             tone();
         } else {
-            result = dsp->setParameterInt(FMOD_DSP_OSCILLATOR_TYPE, 1);
+            result = FMOD_DSP_SetParameterInt(dsp,FMOD_DSP_OSCILLATOR_TYPE, 1);
             ERRCHECK(result);
             startMelodyTone(settings->value("MELODY"));
         }
@@ -134,7 +134,7 @@ void ClientActionTone::tone()
 {
     if (system) {
         FMOD_RESULT result;
-        result = channel->setPaused(false);
+        result = FMOD_Channel_SetPaused(channel,false);
         ERRCHECK(result);
         if (prog_led_tone_control) {
             setProgLed(true);
@@ -146,7 +146,7 @@ void ClientActionTone::notone()
 {
     if (system) {
         FMOD_RESULT result;
-        result = channel->setPaused(true);
+        result = FMOD_Channel_SetPaused(channel,true);
         ERRCHECK(result);
         if (prog_led_tone_control) {
             setProgLed(false);
@@ -158,7 +158,7 @@ void ClientActionTone::update()
 {
     if (system) {
         FMOD_RESULT result;
-        result = system->update();
+        result = FMOD_System_Update(system);
         ERRCHECK(result);
     }
 }
@@ -187,18 +187,18 @@ void ClientActionTone::toneMelodyAction()
     }
     melody_timer_counter = 0;
     if (melody_pos>=melody.length()) {
-        result = dsp->setParameterFloat(FMOD_DSP_OSCILLATOR_RATE, 0.001);
+        result = FMOD_DSP_SetParameterFloat(dsp, FMOD_DSP_OSCILLATOR_RATE, 0.001);
         ERRCHECK(result);
-        result = channel->setVolume(0.0f);
+        result = FMOD_Channel_SetVolume(channel, 0.0f);
         ERRCHECK(result);
         periodicToneTimer->stop();
         return;
     }
     if (melody[melody_pos]==',') melody_pos++;
     if (melody[melody_pos]==',' || melody_pos>=melody.length()) {
-        result = dsp->setParameterFloat(FMOD_DSP_OSCILLATOR_RATE, 0.001);
+        result = FMOD_DSP_SetParameterFloat(dsp, FMOD_DSP_OSCILLATOR_RATE, 0.001);
         ERRCHECK(result);
-        result = channel->setVolume(0.0f);
+        result = FMOD_Channel_SetVolume(channel, 0.0f);
         ERRCHECK(result);
         if (melody_pos>=melody.length()) {
             periodicToneTimer->stop();
@@ -240,15 +240,15 @@ void ClientActionTone::toneMelodyAction()
                 melody_timer_counter_max = pcifr - '0';
                 if (melody_timer_counter_max>9) melody_timer_counter_max = 9;
             }
-            result = dsp->setParameterFloat(FMOD_DSP_OSCILLATOR_RATE, (float) cfreq);
+            result = FMOD_DSP_SetParameterFloat(dsp, FMOD_DSP_OSCILLATOR_RATE, (float) cfreq);
             ERRCHECK(result);
             tone();
-            result = channel->setVolume(1.0f);
+            result = FMOD_Channel_SetVolume(channel, 1.0f);
             ERRCHECK(result);
         } else {
-            result = dsp->setParameterFloat(FMOD_DSP_OSCILLATOR_RATE, 0.001);
+            result = FMOD_DSP_SetParameterFloat(dsp, FMOD_DSP_OSCILLATOR_RATE, 0.001);
             ERRCHECK(result);
-            result = channel->setVolume(0.0f);
+            result = FMOD_Channel_SetVolume(channel, 0.0f);
             ERRCHECK(result);
             //notone();
             melody_pos++;
