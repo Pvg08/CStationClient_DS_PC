@@ -12,8 +12,12 @@ TARGET = PC_CStation_Client
 TEMPLATE = app
 
 win32 {
+    win32-g++ {
+        LIBS += -L$$PWD/libs/fmod/windows/lib/ -lfmod
+    } else {
+        LIBS += $$PWD/libs/fmod/windows/lib/fmod_vc.lib
+    }
     LIBS += $$PWD/libs/winapi/User32.Lib
-    LIBS += $$PWD/libs/fmod/windows/lib/fmod_vc.lib
     INCLUDEPATH += $$PWD/libs/fmod/windows/inc
     DEPENDPATH += $$PWD/libs/fmod/windows/inc
     PRE_TARGETDEPS += $$PWD/libs/fmod/windows/lib/fmod.dll

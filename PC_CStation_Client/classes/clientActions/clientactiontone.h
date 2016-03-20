@@ -2,7 +2,7 @@
 #define CLIENTACTIONTONE_H
 
 #include <QTimer>
-#include <fmod.hpp>
+#include <fmod.h>
 #include <fmod_errors.h>
 #include "../clientaction.h"
 
@@ -29,9 +29,9 @@ private:
     bool tone_state, tone_periodic, tone_is_melody;
     unsigned long int tone_frequency, tone_period;
 
-    FMOD::System *system;
-    FMOD::Channel *channel;
-    FMOD::DSP *dsp;
+    FMOD_SYSTEM *system;
+    FMOD_CHANNEL *channel;
+    FMOD_DSP *dsp;
     QTimer *updateTimer;
     QTimer *periodicToneTimer;
 
