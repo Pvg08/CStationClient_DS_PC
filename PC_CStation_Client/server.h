@@ -11,6 +11,7 @@
 #include "./classes/clientSensors/clientsensoractivity.h"
 #include "./classes/clientSensors/clientsensorbtnactivity.h"
 #include "./classes/clientActions/clientactiontone.h"
+#include "./classes/clientActions/clientactiontonemelody.h"
 #include "./classes/clientActions/clientactionlcd.h"
 #include "./classes/clientActions/clientactionreset.h"
 #include "./classes/clientActions/clientactionconfig.h"

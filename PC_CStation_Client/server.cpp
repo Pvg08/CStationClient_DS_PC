@@ -33,6 +33,7 @@ Server::Server()
     //sensors->insert("internet_speed", new ClientSensor(this));
 
     actions->insert("tone", new ClientActionTone(this));
+    actions->insert("melody", new ClientActionToneMelody(this));
     actions->insert("lcd", new ClientActionLcd(this));
     actions->insert("led", new ClientActionIndication(this));
     actions->insert("led_state", new ClientActionIndicationState(this));

@@ -1,19 +1,5 @@
 #include "clientactiontone.h"
 
-unsigned int ClientActionTone::oct_freq[9][7] = {
-  {16,  18,  21,  22,  25,  28,  31  },
-  {33,  37,  41,  44,  49,  55,  62  },
-  {65,  73,  82,  87,  98,  110, 123 },
-  {131, 147, 165, 175, 196, 220, 247 },
-  {262, 294, 330, 349, 392, 440, 494 },
-  {523, 587, 659, 698, 784, 880, 988 },
-  {1046,1175,1319,1568,1760,1976,1967},
-  {2093,2349,2637,2794,3136,3520,3951},
-  {4186,4699,5274,5588,6272,7040,7902}
-};
-float ClientActionTone::diez_k = 1.059463;
-float ClientActionTone::bemol_k = 0.9438743;
-
 ClientActionTone::ClientActionTone(AbstractServer *parent):
     ClientAction(parent)
 {
@@ -89,19 +75,13 @@ bool ClientActionTone::runAction()
         result = FMOD_Channel_SetVolume(channel, 1.0f);
         ERRCHECK(result);
 
-        if (settings->value("MELODY").isEmpty()) {
-            result = FMOD_DSP_SetParameterInt(dsp,FMOD_DSP_OSCILLATOR_TYPE, 0);
-            ERRCHECK(result);
-            if (tone_periodic) {
-                periodicToneTimer->setInterval(tone_period);
-                periodicToneTimer->start();
-            }
-            tone();
-        } else {
-            result = FMOD_DSP_SetParameterInt(dsp,FMOD_DSP_OSCILLATOR_TYPE, 1);
-            ERRCHECK(result);
-            startMelodyTone(settings->value("MELODY"));
+        result = FMOD_DSP_SetParameterInt(dsp,FMOD_DSP_OSCILLATOR_TYPE, 0);
+        ERRCHECK(result);
+        if (tone_periodic) {
+            periodicToneTimer->setInterval(tone_period);
+            periodicToneTimer->start();
         }
+        tone();
 
         updateTimer->start();
         settings->insert("ACTIVE", "1");
@@ -165,134 +145,12 @@ void ClientActionTone::update()
 
 void ClientActionTone::tonePeriod()
 {
-    if (tone_is_melody) {
-        toneMelodyAction();
+    if (tone_state) {
+        tone();
     } else {
-        if (tone_state) {
-            tone();
-        } else {
-            notone();
-        }
-        tone_state = !tone_state;
+        notone();
     }
-}
-
-void ClientActionTone::toneMelodyAction()
-{
-    FMOD_RESULT result;
-
-    if (melody_timer_counter<melody_timer_counter_max) {
-        melody_timer_counter++;
-        return;
-    }
-    melody_timer_counter = 0;
-    if (melody_pos>=melody.length()) {
-        result = FMOD_DSP_SetParameterFloat(dsp, FMOD_DSP_OSCILLATOR_RATE, 0.001);
-        ERRCHECK(result);
-        result = FMOD_Channel_SetVolume(channel, 0.0f);
-        ERRCHECK(result);
-        periodicToneTimer->stop();
-        return;
-    }
-    if (melody[melody_pos]==',') melody_pos++;
-    if (melody[melody_pos]==',' || melody_pos>=melody.length()) {
-        result = FMOD_DSP_SetParameterFloat(dsp, FMOD_DSP_OSCILLATOR_RATE, 0.001);
-        ERRCHECK(result);
-        result = FMOD_Channel_SetVolume(channel, 0.0f);
-        ERRCHECK(result);
-        if (melody_pos>=melody.length()) {
-            periodicToneTimer->stop();
-            return;
-        }
-    } else {
-        char bukv = melody[melody_pos].toLatin1();
-        if (bukv!='p') {
-            melody_timer_counter_max = 8;
-            quint8 b_pos = 0;
-            switch(bukv) {
-                case 'C': b_pos = 0; break;
-                case 'D': b_pos = 1; break;
-                case 'E': b_pos = 2; break;
-                case 'F': b_pos = 3; break;
-                case 'G': b_pos = 4; break;
-                case 'A': b_pos = 5; break;
-                case 'B': b_pos = 6; break;
-            }
-            melody_pos++;
-            char cifr = melody[melody_pos].toLatin1();
-            quint8 c_pos = cifr - '0';
-            if (c_pos>=sub_level) c_pos-=sub_level; else c_pos=0;
-            unsigned int cfreq = oct_freq[c_pos][b_pos];
-            if (melody[melody_pos+1]=='#') {
-                melody_pos++;
-                cfreq = cfreq * diez_k;
-            }
-            if (melody[melody_pos+1]=='b') {
-                melody_pos++;
-                cfreq = cfreq * bemol_k;
-            }
-            if (melody[melody_pos+1]=='=') {
-                melody_pos+=2;
-                if (melody_pos>=melody.length()) {
-                    return;
-                }
-                char pcifr = melody[melody_pos].toLatin1();
-                melody_timer_counter_max = pcifr - '0';
-                if (melody_timer_counter_max>9) melody_timer_counter_max = 9;
-            }
-            result = FMOD_DSP_SetParameterFloat(dsp, FMOD_DSP_OSCILLATOR_RATE, (float) cfreq);
-            ERRCHECK(result);
-            tone();
-            result = FMOD_Channel_SetVolume(channel, 1.0f);
-            ERRCHECK(result);
-        } else {
-            result = FMOD_DSP_SetParameterFloat(dsp, FMOD_DSP_OSCILLATOR_RATE, 0.001);
-            ERRCHECK(result);
-            result = FMOD_Channel_SetVolume(channel, 0.0f);
-            ERRCHECK(result);
-            //notone();
-            melody_pos++;
-            if (melody_pos>=melody.length()) {
-                periodicToneTimer->stop();
-            }
-            char pcifr = melody[melody_pos].toLatin1();
-            melody_timer_counter_max = pcifr - '0';
-            if (melody_timer_counter_max>9) melody_timer_counter_max = 9;
-        }
-    }
-    melody_pos++;
-}
-
-void ClientActionTone::startMelodyTone(QString cmelody)
-{
-    melody = cmelody;
-    sub_level = 0;
-    unsigned int pos = 0;
-    unsigned int melody_ctemp = readIntFromString(melody, &pos);
-    melody_timer_counter = 1;
-    melody_timer_counter_max = 1;
-    if (melody_ctemp) {
-        melody_tempo = 7500 / melody_ctemp;
-    } else {
-        melody_tempo = 75;
-    }
-    if (melody[pos]=='-') {
-        pos++;
-        sub_level = readIntFromString(melody, &pos);
-    }
-    if (melody[pos] == ':') {
-        pos++;
-    }
-    tone_frequency = 1;
-    melody_pos = pos;
-    tone_periodic = true;
-    tone_state = true;
-    tone_is_melody = true;
-    prog_led_tone_control = false;
-    toneMelodyAction();
-    updateTimer->setInterval(melody_tempo / 2);
-    periodicToneTimer->setInterval(melody_tempo);
-    periodicToneTimer->start();
+    tone_state = !tone_state;
 }
 
 bool ClientActionTone::setParamsFromMessage(QString message)
@@ -305,13 +163,6 @@ bool ClientActionTone::setParamsFromMessage(QString message)
         prog_led_tone_control = true;
         message.remove(0,1);
         if (message[0] == ',') message.remove(0,1);
-    } else if (message[0] == 'M') {
-        message.remove(0,1);
-        if (message[0] == ':') message.remove(0,1);
-        settings->insert("MELODY",message);
-        tone_frequency = 1;
-        tone_period = 0;
-        return true;
     }
     unsigned fr_pos = 0;
     tone_frequency =  readIntFromString(message, &fr_pos);
