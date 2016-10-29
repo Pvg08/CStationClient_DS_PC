@@ -39,6 +39,7 @@ Server::Server()
     actions->insert("reset", new ClientActionReset(this));
     actions->insert("config", new ClientActionConfig(this));
     actions->insert("display_state", new ClientActionSetDisplayState(this));
+    actions->insert("forecast", new ClientActionForecast(this));
     //actions->insert("activity_direction", new ClientAction(this));
 
     initSensors();
@@ -298,6 +299,9 @@ void Server::connectionTimeout()
             sendSensorsInfo();
             sendActionsInfo();
             sendReady();
+
+            SendData("DS_GETFORECAST=1\r\n");
+
             shotTimer->start();
             sendingTimeout();
         }

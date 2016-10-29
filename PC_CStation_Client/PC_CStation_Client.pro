@@ -57,7 +57,8 @@ SOURCES += main.cpp\
     classes/clientActions/clientactionsetdisplaystate.cpp \
     classes/clientActions/clientactionindicationstate.cpp \
     classes/clientActions/clientactiontone.cpp \
-    classes/clientActions/clientactionlcd.cpp
+    classes/clientActions/clientactionlcd.cpp \
+    classes/clientActions/clientactionforecast.cpp
 
 HEADERS  += mainwindow.h \
     abstractserver.h \
@@ -74,7 +75,8 @@ HEADERS  += mainwindow.h \
     classes/clientActions/clientactionsetdisplaystate.h \
     classes/clientActions/clientactionindicationstate.h \
     classes/clientActions/clientactiontone.h \
-    classes/clientActions/clientactionlcd.h
+    classes/clientActions/clientactionlcd.h \
+    classes/clientActions/clientactionforecast.h
 
 FORMS    += mainwindow.ui \
     widgets/clientitemlistsselector.ui

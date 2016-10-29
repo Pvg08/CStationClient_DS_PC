@@ -47,6 +47,10 @@ MainWindow::MainWindow(QWidget *parent) :
     if (lcd_action) {
         QObject::connect(lcd_action, SIGNAL(updateState()), this, SLOT(updateLcdState()));
     }
+    ClientAction* forecast_action = server->clientActions()->value("forecast", NULL);
+    if (forecast_action) {
+        QObject::connect(forecast_action, SIGNAL(updateState()), this, SLOT(updateLcdState()));
+    }
 
     server->StartServer();
 }

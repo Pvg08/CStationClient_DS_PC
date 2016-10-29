@@ -17,6 +17,7 @@
 #include "./classes/clientActions/clientactionindication.h"
 #include "./classes/clientActions/clientactionindicationstate.h"
 #include "./classes/clientActions/clientactionsetdisplaystate.h"
+#include "./classes/clientActions/clientactionforecast.h"
 
 class Server : public AbstractServer
 {
